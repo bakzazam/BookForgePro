@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  aiphdwriter-api:
+    build: .
+    image: aiphdwriter-api
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      # Database (use existing k9appbuilder postgres)
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@172.31.31.140:55432/aiphdwriter
+
+      # MCP Tools (use existing MVAE and Gemini)
+      MVAE_MCP_URL: http://172.31.31.140:8765
+      GEMINI_MCP_URL: http://172.31.31.140:8766
+
+      # API Keys
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      PERPLEXITY_API_KEY: ${PERPLEXITY_API_KEY}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY}
+
+      # Stripe
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY}
+
+      # Storage
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      S3_BUCKET: ${S3_BUCKET:-aiphdwriter-books}
+
+      # App config
+      ENVIRONMENT: production
+      API_BASE_URL: https://api.k9appbuilder.com
+    volumes:
+      - ./storage:/app/storage
+    networks:
+      - aiphdwriter-net
+
+networks:
+  aiphdwriter-net:
+    driver: bridge
